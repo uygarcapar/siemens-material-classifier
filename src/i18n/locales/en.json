@@ -1,0 +1,55 @@
+{
+  "app": {
+    "title": "Material Classifier"
+  },
+  "menu": {
+    "classifyMaterials": "Classify Materials",
+    "viewClassifications": "View Classifications",
+    "language": "Language"
+  },
+  "classifyMaterials": {
+    "title": "Classify Materials",
+    "selectProject": "Select Project",
+    "searchProject": "Search by project number...",
+    "latestProjects": "Latest Projects",
+    "materials": "Materials",
+    "material": "Material",
+    "classification": "Classification",
+    "selectClass": "Select Class",
+    "confirm": "Confirm",
+    "noMaterials": "No materials found for this project",
+    "selectProjectFirst": "Please select a project first",
+    "allClassified": "All materials classified",
+    "pendingClassification": "pending classification",
+    "classifyAll": "Please classify all materials before confirming"
+  },
+  "viewClassifications": {
+    "title": "View Classifications",
+    "selectProject": "Select Project",
+    "searchProject": "Search by project number...",
+    "materialNumber": "Material Number",
+    "classification": "Classification",
+    "classifiedBy": "Classified By",
+    "classificationDate": "Classification Date",
+    "noData": "No materials found for this project",
+    "selectProjectFirst": "Please select a project to view classifications",
+    "exportExcel": "Export to Excel",
+    "filterPlaceholder": "Filter...",
+    "notClassified": "Not Classified"
+  },
+  "modal": {
+    "confirmTitle": "Confirm Classification",
+    "confirmMessage": "Are you sure you want to confirm the classification of all materials?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "successTitle": "Success",
+    "successMessage": "All materials have been classified successfully!",
+    "ok": "OK"
+  },
+  "classes": {
+    "classA": "Class A",
+    "classB": "Class B",
+    "classC": "Class C",
+    "classD": "Class D"
+  }
+}

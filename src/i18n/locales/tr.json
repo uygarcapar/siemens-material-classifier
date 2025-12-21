@@ -1,0 +1,55 @@
+{
+  "app": {
+    "title": "Malzeme Sınıflandırıcı"
+  },
+  "menu": {
+    "classifyMaterials": "Malzeme Sınıflandır",
+    "viewClassifications": "Sınıflandırmaları Görüntüle",
+    "language": "Dil"
+  },
+  "classifyMaterials": {
+    "title": "Malzeme Sınıflandır",
+    "selectProject": "Proje Seç",
+    "searchProject": "Proje numarası ile ara...",
+    "latestProjects": "Son Projeler",
+    "materials": "Malzemeler",
+    "material": "Malzeme",
+    "classification": "Sınıflandırma",
+    "selectClass": "Sınıf Seç",
+    "confirm": "Onayla",
+    "noMaterials": "Bu proje için malzeme bulunamadı",
+    "selectProjectFirst": "Lütfen önce bir proje seçin",
+    "allClassified": "Tüm malzemeler sınıflandırıldı",
+    "pendingClassification": "sınıflandırma bekliyor",
+    "classifyAll": "Onaylamadan önce lütfen tüm malzemeleri sınıflandırın"
+  },
+  "viewClassifications": {
+    "title": "Sınıflandırmaları Görüntüle",
+    "selectProject": "Proje Seç",
+    "searchProject": "Proje numarası ile ara...",
+    "materialNumber": "Malzeme Numarası",
+    "classification": "Sınıflandırma",
+    "classifiedBy": "Sınıflandıran",
+    "classificationDate": "Sınıflandırma Tarihi",
+    "noData": "Bu proje için malzeme bulunamadı",
+    "selectProjectFirst": "Sınıflandırmaları görüntülemek için bir proje seçin",
+    "exportExcel": "Excel'e Aktar",
+    "filterPlaceholder": "Filtrele...",
+    "notClassified": "Sınıflandırılmamış"
+  },
+  "modal": {
+    "confirmTitle": "Sınıflandırmayı Onayla",
+    "confirmMessage": "Tüm malzemelerin sınıflandırmasını onaylamak istediğinizden emin misiniz?",
+    "cancel": "İptal",
+    "confirm": "Onayla",
+    "successTitle": "Başarılı",
+    "successMessage": "Tüm malzemeler başarıyla sınıflandırıldı!",
+    "ok": "Tamam"
+  },
+  "classes": {
+    "classA": "Sınıf A",
+    "classB": "Sınıf B",
+    "classC": "Sınıf C",
+    "classD": "Sınıf D"
+  }
+}

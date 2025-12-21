@@ -1,0 +1,201 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom theme color overrides */
+:root,
+html[data-theme="theme-classic-dark"],
+html.theme-classic-dark,
+body {
+  --theme-color-1: #000028 !important;
+  --theme-color-2: #000028 !important;
+  --theme-color-ghost--hover: #2d3441 !important;
+  --theme-color-ghost--selected: #363d4d !important;
+  --theme-color-component: #1e2229 !important;
+  --theme-color-soft-bdr: #3d4555 !important;
+  --theme-color-std-bdr: #505866 !important;
+}
+
+body {
+  font-family: 'Siemens Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--theme-color-1);
+  color: var(--theme-color-std-text);
+}
+
+/* AG Grid */
+.ag-theme-alpine-dark {
+  --ag-background-color: var(--theme-color-1);
+  --ag-header-background-color: var(--theme-color-2);
+  --ag-odd-row-background-color: var(--theme-color-1);
+  --ag-row-hover-color: var(--theme-color-ghost--hover);
+  --ag-selected-row-background-color: var(--theme-color-ghost--selected);
+  --ag-border-color: var(--theme-color-soft-bdr);
+  --ag-header-foreground-color: var(--theme-color-std-text);
+  --ag-foreground-color: var(--theme-color-std-text);
+  --ag-secondary-foreground-color: var(--theme-color-soft-text);
+  --ag-input-border-color: var(--theme-color-soft-bdr);
+  --ag-input-focus-border-color: var(--theme-color-primary);
+}
+
+.ag-theme-alpine-dark .ag-header-cell {
+  font-weight: bold;
+}
+
+.ag-theme-alpine-dark .ag-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-color-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-color-soft-bdr);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-color-std-bdr);
+}
+
+/* Animations */
+@keyframes highlightRow {
+  0% {
+    background-color: var(--theme-color-primary-bdr);
+  }
+  100% {
+    background-color: var(--theme-color-1);
+  }
+}
+
+ix-button:hover {
+  transform: translateY(-1px);
+}
+
+ix-pill {
+  transition: all 0.2s ease;
+}
+
+ix-modal {
+  --ix-modal-backdrop-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Form elements */
+ix-select,
+ix-select:focus-within,
+ix-select:focus,
+ix-select:hover,
+.no-focus-select,
+.no-focus-select:focus-within,
+.no-focus-select:focus,
+.no-focus-select:hover {
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: #000028 !important;
+  border-color: var(--theme-color-soft-bdr) !important;
+}
+
+ix-select::part(input),
+ix-select::part(input):focus,
+ix-select::part(input):hover {
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: #000028 !important;
+  border: none !important;
+}
+
+.classification-btn {
+  transition: all 0.15s ease;
+}
+
+.classification-btn:hover {
+  transform: scale(1.02);
+}
+
+.classification-btn.selected {
+  transform: scale(1.05);
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (min-width: 769px) {
+  ix-menu {
+    border-right: 1px solid var(--theme-color-soft-bdr) !important;
+  }
+
+  .menu-padding {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .desktop-only-title {
+    display: block !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only-title {
+    display: none !important;
+  }
+
+  ix-menu {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+  }
+
+  ix-menu[expanded="false"] {
+    transform: translateX(-100%) !important;
+  }
+
+  ix-menu[expanded="true"] {
+    transform: translateX(0) !important;
+  }
+
+  ix-menu::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  ix-menu[expanded="true"]::before {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  ix-menu::part(drawer),
+  ix-menu::part(menu-container) {
+    box-shadow: none !important;
+  }
+}
+
+ix-application-header::part(app-name) {
+  font-weight: 600 !important;
+}
+
+ix-application-header .app-name,
+ix-application-header h1 {
+  font-weight: 600 !important;
+}
