@@ -12,6 +12,7 @@ import {
 } from "../data/mockData";
 import { getProjectClassifications } from "../utils/classificationStorage";
 
+// SADECE GEREKLİ STİLLER
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -80,7 +81,7 @@ const ViewClassifications = () => {
       {
         headerName: t("viewClassifications.materialNumber"),
         field: "materialNumber",
-        filter: "agSetColumnFilter",
+        filter: "agSetColumnFilter", // Enterprise özelliği
         sortable: true,
         flex: 1,
         minWidth: 150,
