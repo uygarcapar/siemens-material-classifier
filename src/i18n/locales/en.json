@@ -21,7 +21,9 @@
     "selectProjectFirst": "Please select a project first",
     "allClassified": "All materials classified",
     "pendingClassification": "pending classification",
-    "classifyAll": "Please classify all materials before confirming"
+    "classifyAll": "Please classify all materials before confirming",
+    "recentsHeader": "── Recents ──",
+    "allProjectsHeader": "── All Projects ──"
   },
   "viewClassifications": {
     "title": "View Classifications",
@@ -35,7 +37,9 @@
     "selectProjectFirst": "Please select a project to view classifications",
     "exportExcel": "Export to Excel",
     "filterPlaceholder": "Filter...",
-    "notClassified": "Not Classified"
+    "notClassified": "Not Classified",
+    "recentsHeader": "── Recents ──",
+    "allProjectsHeader": "── All Projects ──"
   },
   "modal": {
     "confirmTitle": "Confirm Classification",

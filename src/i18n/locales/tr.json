@@ -21,7 +21,9 @@
     "selectProjectFirst": "Lütfen önce bir proje seçin",
     "allClassified": "Tüm malzemeler sınıflandırıldı",
     "pendingClassification": "sınıflandırma bekliyor",
-    "classifyAll": "Onaylamadan önce lütfen tüm malzemeleri sınıflandırın"
+    "classifyAll": "Onaylamadan önce lütfen tüm malzemeleri sınıflandırın",
+    "recentsHeader": "── Son Görüntülenenler ──",
+    "allProjectsHeader": "── Tüm Projeler ──"
   },
   "viewClassifications": {
     "title": "Sınıflandırmaları Görüntüle",
@@ -35,7 +37,9 @@
     "selectProjectFirst": "Sınıflandırmaları görüntülemek için bir proje seçin",
     "exportExcel": "Excel'e Aktar",
     "filterPlaceholder": "Filtrele...",
-    "notClassified": "Sınıflandırılmamış"
+    "notClassified": "Sınıflandırılmamış",
+    "recentsHeader": "── Son Görüntülenenler ──",
+    "allProjectsHeader": "── Tüm Projeler ──"
   },
   "modal": {
     "confirmTitle": "Sınıflandırmayı Onayla",

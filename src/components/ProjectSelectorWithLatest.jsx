@@ -75,7 +75,7 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
       {recentProjects.length > 0 && (
         <>
           <IxSelectItem
-            label="── Recents ──"
+            label={t("classifyMaterials.recentsHeader")}
             value="_recents_header"
             style={{
               fontWeight: "bold",
@@ -95,7 +95,7 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
       )}
 
       <IxSelectItem
-        label="── All Projects ──"
+        label={t("classifyMaterials.allProjectsHeader")}
         value="_all_header"
         style={{
           fontWeight: "bold",

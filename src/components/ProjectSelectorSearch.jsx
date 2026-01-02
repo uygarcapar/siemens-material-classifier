@@ -68,7 +68,7 @@ const ProjectSelectorSearch = ({ selectedProject, onProjectSelect }) => {
       {recentProjects.length > 0 && (
         <>
           <IxSelectItem
-            label="── Recents ──"
+            label={t("viewClassifications.recentsHeader")}
             value="_recents_header"
             style={{
               fontWeight: "bold",
@@ -88,7 +88,7 @@ const ProjectSelectorSearch = ({ selectedProject, onProjectSelect }) => {
       )}
 
       <IxSelectItem
-        label="── All Projects ──"
+        label={t("viewClassifications.allProjectsHeader")}
         value="_all_header"
         style={{
           fontWeight: "bold",
