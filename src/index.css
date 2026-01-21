@@ -1,4 +1,3 @@
-/* Global styles */
 * {
   margin: 0;
   padding: 0;
@@ -9,8 +8,6 @@ html, body, #root {
   height: 100%;
   width: 100%;
 }
-
-/* Custom theme color overrides */
 :root,
 html[data-theme="theme-classic-dark"],
 html.theme-classic-dark,
@@ -30,7 +27,6 @@ body {
   color: var(--theme-color-std-text);
 }
 
-/* AG Grid */
 .ag-theme-alpine-dark {
   --ag-background-color: var(--theme-color-1);
   --ag-header-background-color: var(--theme-color-2);
@@ -54,7 +50,6 @@ body {
   align-items: center;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -73,7 +68,6 @@ body {
   background: var(--theme-color-std-bdr);
 }
 
-/* Animations */
 @keyframes highlightRow {
   0% {
     background-color: var(--theme-color-primary-bdr);
@@ -95,7 +89,6 @@ ix-modal {
   --ix-modal-backdrop-color: rgba(0, 0, 0, 0.7);
 }
 
-/* Form elements */
 ix-select,
 ix-select:focus-within,
 ix-select:focus,
@@ -132,7 +125,6 @@ ix-select::part(input):hover {
   font-weight: bold;
 }
 
-/* Responsive */
 @media (min-width: 769px) {
   ix-menu {
     border-right: 1px solid var(--theme-color-soft-bdr) !important;

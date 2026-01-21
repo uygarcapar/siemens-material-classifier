@@ -31,17 +31,20 @@ A modern web application for classifying materials using the Siemens Industrial 
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone <repository-url>
 cd siemens-material-classifier
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 3. Run development server
+
 ```bash
 npm run dev
 ```
@@ -115,6 +118,7 @@ The app has two main pages accessible via the left menu:
 ### URL Parameters
 
 Share direct links to projects:
+
 - `/classifymaterials?project=7048011111`
 - `/viewclassifications?project=7048022222`
 
@@ -124,12 +128,12 @@ Toggle between English and Turkish using the language selector in the bottom men
 
 ## Classification Color Coding
 
-| Class   | Color  | Description |
-|---------|--------|-------------|
-| Class A | Green  | High priority |
-| Class B | Blue   | Standard |
+| Class   | Color  | Description     |
+| ------- | ------ | --------------- |
+| Class A | Green  | High priority   |
+| Class B | Blue   | Standard        |
 | Class C | Orange | Medium priority |
-| Class D | Red    | Low priority |
+| Class D | Red    | Low priority    |
 
 ## Data Storage
 
@@ -151,3 +155,40 @@ Toggle between English and Turkish using the language selector in the bottom men
 
 - Modern browsers (Chrome, Firefox, Safari, Edge)
 - LocalStorage support required
+
+## Implementation Notes
+
+### URL State Management
+
+The application uses a URL-based state management strategy to ensure a optimised user experience:
+
+- **Multi-parameter support**: Both `project` and `plant` parameters are synchronized with the URL (`?project=X&plant=Y`).
+- **Custom hook (`useUrlParams`)**: Centralizes URL parameter logic with updates to prevent race conditions.
+- **Tab persistence**: URL parameters are preserved when navigating between pages, allowing users to switch tabs without losing their data.
+- **Auto-plant selection**: When a project is selected, its associated plant is automatically set in both state and URL.
+- **Direct URL access**: Users can share links with pre-selected projects and plants, which are automatically loaded on page mount.
+
+This approach ensures that the application state is always bookmarkable, shareable, and recoverable after page refresh.
+
+### Validation & UX Decisions
+
+Several UX enhancements were implemented to improve usability and prevent errors:
+
+- **Draft auto-save**: Classification changes are immediately saved to localStorage as drafts, preventing data loss on accidental page refresh or navigation. That would enhance the usage of this project for operators.
+- **Visual change indicators**:
+  - Previous submitted classifications grayed out when changed.
+  - "Unsaved changes" badge alerts users to uncommitted work.
+  - Discard button allows easy rollback to submitted state.
+- **Plant mismatch warnings**: Warning messages appear when URL plant filter doesn't match the selected project's actual plant.
+- **Conditional filtering**: Selected projects always appear in dropdowns regardless of plant filter to prevent confusion.
+- **Prevent duplicate actions**: Same plant selection twice is ignored to avoid unnecessary re-renders and state resets.
+
+### Future Improvements
+
+If given, I would change the project by:
+
+1. **Backend integration**: Replace mock data with REST API calls, add proper error handling integration with backend.
+2. **State management**: Consider Zustand or Redux for complex cross-component state if the app scales.
+3. **Undo/Redo**: Implement command pattern for classification history with keyboard shortcuts.
+4. **Next.js**: I would implement Next.js to this project if the scale is bigger for better performance, optimization and backend integrity.
+5. **Siemens IX**: Using Siemens IX was not hard but challenging for my UI/UX design because I am used to creating components from scratch. So that I would create the components that I imported from Siemens IX by myself. But I loved working with Siemens IX and I am getting used to it.

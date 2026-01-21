@@ -42,6 +42,13 @@ const AppContent = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const navigateWithParams = (path) => {
+    navigate({
+      pathname: path,
+      search: location.search,
+    });
+  };
+
   return (
     <IxApplication>
       <IxApplicationHeader
@@ -96,7 +103,7 @@ const AppContent = () => {
         <IxMenuItem
           home
           icon="checkboxes"
-          onClick={() => navigate("/classifymaterials")}
+          onClick={() => navigateWithParams("/classifymaterials")}
           active={isActive("/classifymaterials") || isActive("/")}
           style={{
             fontSize: 15,
@@ -109,7 +116,7 @@ const AppContent = () => {
 
         <IxMenuItem
           icon="table"
-          onClick={() => navigate("/viewclassifications")}
+          onClick={() => navigateWithParams("/viewclassifications")}
           active={isActive("/viewclassifications")}
           style={{
             fontSize: 15,

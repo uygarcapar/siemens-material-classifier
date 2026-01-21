@@ -1,11 +1,12 @@
-// Classification options
 export const classes = ["Class A", "Class B", "Class C", "Class D"];
 
-// Latest projects data for /classifymaterials
+export const plants = ["KOC", "IST", "ANK", "IZM"];
+
 export const latestProjectsData = [
   {
     projectNumber: "7048011111",
     projectName: "Sie Project 1",
+    plant: "KOC",
     materials: [
       "A653KJDHAX9Q",
       "B91XK7QDH2LM",
@@ -42,6 +43,7 @@ export const latestProjectsData = [
   {
     projectNumber: "7048022222",
     projectName: "Sie Project 2",
+    plant: "IST",
     materials: [
       "A653KJDHAX9Q",
       "B91XK7QDH2LM",
@@ -57,11 +59,13 @@ export const latestProjectsData = [
   {
     projectNumber: "7048033333",
     projectName: "Abc Project",
+    plant: "ANK",
     materials: ["A653KJDHAX9Q", "B91XK7QDH2LM", "C4Z8A9QWERTY"],
   },
   {
     projectNumber: "7048044444",
     projectName: "Def Project",
+    plant: "IZM",
     materials: [
       "D1F2G3H4J5K6",
       "D2L3M4N5B6V7",
@@ -73,6 +77,7 @@ export const latestProjectsData = [
   {
     projectNumber: "7048055555",
     projectName: "Sample Project 1",
+    plant: "KOC",
     materials: [
       "S1P2L3M4N5B6",
       "S2V7C8X9Z0A1",
@@ -85,26 +90,23 @@ export const latestProjectsData = [
   {
     projectNumber: "7048066666",
     projectName: "Sample Project 2",
-    materials: [
-      "S2A1B2C3D4E5",
-      "S2F6G7H8J9K0",
-      "S2L1M2N3B4V5",
-      "S2C6X7Z8Q9W0",
-    ],
+    plant: "IST",
+    materials: ["S2A1B2C3D4E5", "S2F6G7H8J9K0", "S2L1M2N3B4V5", "S2C6X7Z8Q9W0"],
   },
   {
     projectNumber: "7048077777",
     projectName: "Test Project Alpha",
+    plant: "ANK",
     materials: ["T1A2B3C4D5E6", "T2B3C4D5E6F7", "T3C4D5E6F7G8"],
   },
   {
     projectNumber: "7048088888",
     projectName: "Test Project Beta",
+    plant: "IZM",
     materials: ["B1X2Y3Z4W5V6", "B2Y3Z4W5V6U7"],
   },
 ];
 
-// Classified materials data for /viewclassifications (example for project 7048022222)
 export const classifiedMaterialsDataOfProject = {
   7048022222: [
     {
@@ -184,8 +186,9 @@ export const classifiedMaterialsDataOfProject = {
   ],
 };
 
-// Search results for project selector - dynamically generated from latestProjectsData
-export const foundProjectsOptionsAfterSearch = latestProjectsData.map((project) => ({
-  projectNumber: project.projectNumber,
-  projectName: project.projectName,
-}));
+export const foundProjectsOptionsAfterSearch = latestProjectsData.map(
+  (project) => ({
+    projectNumber: project.projectNumber,
+    projectName: project.projectName,
+  })
+);

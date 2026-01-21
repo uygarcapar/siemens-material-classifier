@@ -2,6 +2,17 @@
   "app": {
     "title": "Malzeme Sınıflandırıcı"
   },
+  "common": {
+    "selectPlant": "Tesis Seç",
+    "plant": "Tesis",
+    "warning": "Uyarı",
+    "plantMismatchPart1": "Seçili proje",
+    "plantMismatchPart2": "tesisine ait, ancak tesis filtresi",
+    "plantMismatchPart3": "olarak ayarlı",
+    "showingProjectsPart1": "",
+    "showingProjectsPart2": "için",
+    "showingProjectsPart3": "proje gösteriliyor"
+  },
   "menu": {
     "classifyMaterials": "Malzeme Sınıflandır",
     "viewClassifications": "Sınıflandırmaları Görüntüle",
@@ -10,6 +21,7 @@
   "classifyMaterials": {
     "title": "Malzeme Sınıflandır",
     "selectProject": "Proje Seç",
+    "selectPlant": "Tesis Seç",
     "searchProject": "Proje numarası ile ara...",
     "latestProjects": "Son Projeler",
     "materials": "Malzemeler",
@@ -19,15 +31,18 @@
     "confirm": "Onayla",
     "noMaterials": "Bu proje için malzeme bulunamadı",
     "selectProjectFirst": "Lütfen önce bir proje seçin",
-    "allClassified": "Tüm malzemeler sınıflandırıldı",
-    "pendingClassification": "sınıflandırma bekliyor",
+    "allClassified": "Tümü sınıflandırıldı",
+    "pendingClassification": "bekliyor",
     "classifyAll": "Onaylamadan önce lütfen tüm malzemeleri sınıflandırın",
     "recentsHeader": "── Son Görüntülenenler ──",
-    "allProjectsHeader": "── Tüm Projeler ──"
+    "allProjectsHeader": "── Tüm Projeler ──",
+    "unsavedChanges": "Taslak",
+    "discardChanges": "Değişiklikleri iptal et"
   },
   "viewClassifications": {
     "title": "Sınıflandırmaları Görüntüle",
     "selectProject": "Proje Seç",
+    "selectPlant": "Tesis Seç",
     "searchProject": "Proje numarası ile ara...",
     "materialNumber": "Malzeme Numarası",
     "classification": "Sınıflandırma",
@@ -43,12 +58,16 @@
   },
   "modal": {
     "confirmTitle": "Sınıflandırmayı Onayla",
-    "confirmMessage": "Tüm malzemelerin sınıflandırmasını onaylamak istediğinizden emin misiniz?",
+    "confirmMessage": "Bu numaralı projedeki tüm malzemelerin sınıflandırmasını onaylamak istediğinizden emin misiniz",
+    "project": "Proje",
+    "plant": "Tesis",
+    "materials": "Malzemeler",
     "cancel": "İptal",
     "confirm": "Onayla",
     "successTitle": "Başarılı",
     "successMessage": "Tüm malzemeler başarıyla sınıflandırıldı!",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "view": "Görüntüle"
   },
   "classes": {
     "classA": "Sınıf A",

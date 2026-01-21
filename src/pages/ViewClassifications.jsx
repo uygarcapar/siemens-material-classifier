@@ -5,29 +5,59 @@ import { useTranslation } from "react-i18next";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import ProjectSelectorSearch from "../components/ProjectSelectorSearch";
-import { useUrlProjectParam } from "../hooks/useUrlProjectParam";
+import PlantSelector from "../components/PlantSelector";
+import { useUrlParams } from "../hooks/useUrlParams";
 import {
   classifiedMaterialsDataOfProject,
   latestProjectsData,
 } from "../data/mockData";
 import { getProjectClassifications } from "../utils/classificationStorage";
 
-// SADECE GEREKLİ STİLLER
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 const ViewClassifications = () => {
   const { t } = useTranslation();
-  const { projectNumber, setProjectNumber } = useUrlProjectParam();
+  const { project, plant, setProject, setPlant, setParams } = useUrlParams();
   const gridRef = useRef(null);
 
-  const [selectedProject, setSelectedProject] = useState(projectNumber || "");
+  const [selectedProject, setSelectedProject] = useState(project || "");
+  const [selectedPlant, setSelectedPlant] = useState(plant || "");
+
+  // Load saved grid state from localStorage
+  const loadGridState = useCallback(() => {
+    const savedState = localStorage.getItem("agGridState");
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (e) {
+        console.error("Failed to parse saved grid state", e);
+        return null;
+      }
+    }
+    return null;
+  }, []);
+
+  // Save grid state to localStorage
+  const saveGridState = useCallback(() => {
+    if (!gridRef.current) return;
+
+    const filterModel = gridRef.current.api.getFilterModel();
+    const columnState = gridRef.current.api.getColumnState();
+
+    const gridState = {
+      filterModel,
+      columnState,
+    };
+
+    localStorage.setItem("agGridState", JSON.stringify(gridState));
+  }, []);
 
   const rowData = useMemo(() => {
     if (!selectedProject) return [];
 
     const project = latestProjectsData.find(
-      (p) => p.projectNumber === selectedProject
+      (p) => p.projectNumber === selectedProject,
     );
     if (!project) return [];
 
@@ -60,20 +90,74 @@ const ViewClassifications = () => {
 
   const projectName = useMemo(() => {
     const project = latestProjectsData.find(
-      (p) => p.projectNumber === selectedProject
+      (p) => p.projectNumber === selectedProject,
     );
     return project?.projectName || "";
   }, [selectedProject]);
 
+  const filteredProjectsCount = useMemo(() => {
+    if (!selectedPlant) return latestProjectsData.length;
+    return latestProjectsData.filter((p) => p.plant === selectedPlant).length;
+  }, [selectedPlant]);
+
+  const currentProject = useMemo(() => {
+    return latestProjectsData.find((p) => p.projectNumber === selectedProject);
+  }, [selectedProject]);
+
+  const isPlantMismatch = useMemo(() => {
+    if (!selectedProject || !selectedPlant || !currentProject) return false;
+    return currentProject.plant !== selectedPlant;
+  }, [selectedProject, selectedPlant, currentProject]);
+
   useEffect(() => {
-    if (projectNumber && projectNumber !== selectedProject) {
-      setSelectedProject(projectNumber);
+    if (project && project !== selectedProject) {
+      setSelectedProject(project);
+      const projectData = latestProjectsData.find(
+        (p) => p.projectNumber === project,
+      );
+      if (projectData && projectData.plant && !plant) {
+        setSelectedPlant(projectData.plant);
+      }
     }
-  }, [projectNumber]);
+  }, [project]);
+
+  useEffect(() => {
+    if (plant && plant !== selectedPlant) {
+      setSelectedPlant(plant);
+    }
+  }, [plant]);
 
   const handleProjectSelect = (projectNum) => {
     setSelectedProject(projectNum);
-    setProjectNumber(projectNum);
+
+    if (projectNum) {
+      const project = latestProjectsData.find(
+        (p) => p.projectNumber === projectNum,
+      );
+      if (project && project.plant) {
+        setSelectedPlant(project.plant);
+        setParams({ project: projectNum, plant: project.plant });
+      } else {
+        setProject(projectNum);
+      }
+    } else {
+      setProject("");
+    }
+  };
+
+  const handlePlantSelect = (plantCode) => {
+    if (plantCode === selectedPlant) {
+      return;
+    }
+
+    setSelectedPlant(plantCode);
+    setSelectedProject("");
+
+    if (plantCode) {
+      setParams({ plant: plantCode });
+    } else {
+      setPlant("");
+    }
   };
 
   const columnDefs = useMemo(
@@ -81,7 +165,7 @@ const ViewClassifications = () => {
       {
         headerName: t("viewClassifications.materialNumber"),
         field: "materialNumber",
-        filter: "agSetColumnFilter", // Enterprise özelliği
+        filter: "agSetColumnFilter",
         sortable: true,
         flex: 1,
         minWidth: 150,
@@ -133,7 +217,7 @@ const ViewClassifications = () => {
         minWidth: 160,
       },
     ],
-    [t]
+    [t],
   );
 
   const defaultColDef = useMemo(
@@ -143,7 +227,7 @@ const ViewClassifications = () => {
         buttons: ["reset", "apply"],
       },
     }),
-    []
+    [],
   );
 
   const exportToExcel = useCallback(async () => {
@@ -222,7 +306,7 @@ const ViewClassifications = () => {
       blob,
       `Classifications_${selectedProject}_${
         new Date().toISOString().split("T")[0]
-      }.xlsx`
+      }.xlsx`,
     );
   }, [rowData, selectedProject, t]);
 
@@ -240,37 +324,87 @@ const ViewClassifications = () => {
       </IxTypography>
 
       <div style={{ marginBottom: "24px" }}>
-        <IxTypography
-          format="label"
-          style={{ marginBottom: "8px", display: "block" }}
-        >
-          {t("viewClassifications.selectProject")}
-        </IxTypography>
+        <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+          <div>
+            <IxTypography
+              format="label"
+              style={{ marginBottom: "8px", display: "block" }}
+            >
+              {t("viewClassifications.selectProject")}
+            </IxTypography>
+            <ProjectSelectorSearch
+              selectedProject={selectedProject}
+              selectedPlant={selectedPlant}
+              onProjectSelect={handleProjectSelect}
+            />
+          </div>
+          <div>
+            <IxTypography
+              format="label"
+              style={{ marginBottom: "8px", display: "block" }}
+            >
+              {t("viewClassifications.selectPlant")}
+            </IxTypography>
+            <PlantSelector
+              selectedPlant={selectedPlant}
+              onPlantSelect={handlePlantSelect}
+            />
+          </div>
+        </div>
         <div
           style={{
+            marginTop: "4px",
             display: "flex",
-            gap: "16px",
-            alignItems: "center",
-            flexWrap: "wrap",
+            flexDirection: "column",
+            gap: "4px",
           }}
         >
-          <ProjectSelectorSearch
-            selectedProject={selectedProject}
-            onProjectSelect={handleProjectSelect}
-          />
-          {rowData.length > 0 && (
-            <IxButton variant="secondary" onClick={exportToExcel}>
-              <IxTypography>
-                {t("viewClassifications.exportExcel")}
-              </IxTypography>
-            </IxButton>
+          {isPlantMismatch && (
+            <IxTypography
+              format="caption"
+              style={{
+                color: "var(--theme-alarm)",
+                fontSize: "12px",
+                fontWeight: "bold",
+                marginTop: "8px",
+              }}
+            >
+              ⚠️ {t("common.warning")}: {t("common.plantMismatchPart1")} {currentProject.plant} {t("common.plantMismatchPart2")} {selectedPlant} {t("common.plantMismatchPart3")}
+            </IxTypography>
+          )}
+          {selectedPlant && (
+            <IxTypography
+              format="caption"
+              style={{
+                color: "var(--theme-color-soft-text)",
+                fontSize: "12px",
+              }}
+            >
+              {selectedPlant} {t("common.showingProjectsPart2")} {filteredProjectsCount} {t("common.showingProjectsPart3")}
+            </IxTypography>
           )}
         </div>
       </div>
 
       {projectName && (
-        <div style={{ marginBottom: "16px" }}>
-          <IxTypography format="h4">{projectName}</IxTypography>
+        <div
+          style={{
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <IxTypography format="h2">{projectName}</IxTypography>
+          {rowData.length > 0 && (
+            <IxButton
+              variant="secondary"
+              onClick={exportToExcel}
+              style={{ borderRadius: "80px" }}
+            >
+              {t("viewClassifications.exportExcel")}
+            </IxButton>
+          )}
         </div>
       )}
 
@@ -339,6 +473,21 @@ const ViewClassifications = () => {
             animateRows={true}
             domLayout="normal"
             style={{ height: "100%", width: "100%" }}
+            onGridReady={(params) => {
+              const savedState = loadGridState();
+              if (savedState) {
+                if (savedState.filterModel) {
+                  params.api.setFilterModel(savedState.filterModel);
+                }
+                if (savedState.columnState) {
+                  params.api.applyColumnState({
+                    state: savedState.columnState,
+                  });
+                }
+              }
+            }}
+            onFilterChanged={saveGridState}
+            onSortChanged={saveGridState}
           />
         </div>
       )}
