@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { IxSelect, IxSelectItem } from "@siemens/ix-react";
 import { useTranslation } from "react-i18next";
 import { latestProjectsData } from "../data/mockData";
@@ -6,7 +6,7 @@ import { latestProjectsData } from "../data/mockData";
 const RECENT_PROJECTS_KEY = "recentViews";
 const MAX_RECENT_PROJECTS = 5;
 
-const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
+const ProjectSelectorWithLatest = ({ selectedProject, selectedPlant, onProjectSelect }) => {
   const { t } = useTranslation();
   const [recentProjects, setRecentProjects] = useState([]);
 
@@ -44,6 +44,40 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
     localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(updated));
   };
 
+  const filteredProjects = useMemo(() => {
+    let projects = latestProjectsData;
+
+    if (selectedPlant) {
+      projects = projects.filter((p) => p.plant === selectedPlant);
+    }
+
+    if (selectedProject) {
+      const isProjectInList = projects.some((p) => p.projectNumber === selectedProject);
+      if (!isProjectInList) {
+        const selectedProjectData = latestProjectsData.find(
+          (p) => p.projectNumber === selectedProject
+        );
+        if (selectedProjectData) {
+          projects = [selectedProjectData, ...projects];
+        }
+      }
+    }
+
+    return projects;
+  }, [selectedPlant, selectedProject]);
+
+  const filteredRecents = useMemo(() => {
+    if (!selectedPlant) {
+      return recentProjects;
+    }
+    return recentProjects.filter((recent) => {
+      const project = latestProjectsData.find(
+        (p) => p.projectNumber === recent.projectNumber
+      );
+      return project && project.plant === selectedPlant;
+    });
+  }, [recentProjects, selectedPlant]);
+
   const handleSelectionChange = (event) => {
     const value = Array.isArray(event.detail) ? event.detail[0] : event.detail;
 
@@ -54,6 +88,8 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
     if (value) {
       addToRecent(value);
       onProjectSelect(value);
+    } else {
+      onProjectSelect("");
     }
   };
 
@@ -72,7 +108,7 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
       }}
       className="no-focus-select"
     >
-      {recentProjects.length > 0 && (
+      {filteredRecents.length > 0 && (
         <>
           <IxSelectItem
             label={t("classifyMaterials.recentsHeader")}
@@ -84,13 +120,19 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
               opacity: 0.6,
             }}
           />
-          {recentProjects.map((project) => (
-            <IxSelectItem
-              key={`recent-${project.projectNumber}`}
-              label={`${project.projectNumber} - ${project.projectName}`}
-              value={project.projectNumber}
-            />
-          ))}
+          {filteredRecents.map((project) => {
+            const projectData = latestProjectsData.find(
+              (p) => p.projectNumber === project.projectNumber
+            );
+            const plantName = projectData?.plant || "";
+            return (
+              <IxSelectItem
+                key={`recent-${project.projectNumber}`}
+                label={`${project.projectNumber} - ${project.projectName}${plantName ? ` - ${plantName}` : ""}`}
+                value={project.projectNumber}
+              />
+            );
+          })}
         </>
       )}
 
@@ -104,10 +146,10 @@ const ProjectSelectorWithLatest = ({ selectedProject, onProjectSelect }) => {
           opacity: 0.6,
         }}
       />
-      {latestProjectsData.map((project) => (
+      {filteredProjects.map((project) => (
         <IxSelectItem
           key={project.projectNumber}
-          label={`${project.projectNumber} - ${project.projectName}`}
+          label={`${project.projectNumber} - ${project.projectName} - ${project.plant}`}
           value={project.projectNumber}
         />
       ))}

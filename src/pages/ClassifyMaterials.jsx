@@ -11,8 +11,10 @@ import {
   showModal,
 } from "@siemens/ix-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import ProjectSelectorWithLatest from "../components/ProjectSelectorWithLatest";
-import { useUrlProjectParam } from "../hooks/useUrlProjectParam";
+import PlantSelector from "../components/PlantSelector";
+import { useUrlParams } from "../hooks/useUrlParams";
 import {
   latestProjectsData,
   classes,
@@ -32,10 +34,14 @@ const classColors = {
 
 const ClassifyMaterials = () => {
   const { t } = useTranslation();
-  const { projectNumber, setProjectNumber } = useUrlProjectParam();
+  const navigate = useNavigate();
+  const { project, plant, setProject, setPlant, setParams } = useUrlParams();
 
-  const [selectedProject, setSelectedProject] = useState(projectNumber || "");
+  const [selectedProject, setSelectedProject] = useState(project || "");
+  const [selectedPlant, setSelectedPlant] = useState(plant || "");
   const [classifications, setClassifications] = useState({});
+  const [submittedClassifications, setSubmittedClassifications] = useState({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const currentProject = useMemo(() => {
     return latestProjectsData.find((p) => p.projectNumber === selectedProject);
@@ -43,26 +49,67 @@ const ClassifyMaterials = () => {
 
   const materials = currentProject?.materials || [];
 
+  const filteredProjectsCount = useMemo(() => {
+    if (!selectedPlant) return latestProjectsData.length;
+    return latestProjectsData.filter((p) => p.plant === selectedPlant).length;
+  }, [selectedPlant]);
+
+  const isPlantMismatch = useMemo(() => {
+    if (!selectedProject || !selectedPlant || !currentProject) return false;
+    return currentProject.plant !== selectedPlant;
+  }, [selectedProject, selectedPlant, currentProject]);
+
   useEffect(() => {
-    if (projectNumber && projectNumber !== selectedProject) {
-      setSelectedProject(projectNumber);
+    if (project && project !== selectedProject) {
+      setSelectedProject(project);
+      const projectData = latestProjectsData.find(
+        (p) => p.projectNumber === project,
+      );
+      if (projectData && projectData.plant && !plant) {
+        setSelectedPlant(projectData.plant);
+      }
     }
-  }, [projectNumber]);
+  }, [project]);
+
+  useEffect(() => {
+    if (plant && plant !== selectedPlant) {
+      setSelectedPlant(plant);
+    }
+  }, [plant]);
 
   useEffect(() => {
     if (!selectedProject) {
       setClassifications({});
+      setSubmittedClassifications({});
+      setHasUnsavedChanges(false);
       return;
     }
 
     const savedClassifications = getProjectClassifications(selectedProject);
+
+    const draftKey = `draftClassifications_${selectedProject}`;
+    const draftData = localStorage.getItem(draftKey);
+    let draftClassifications = {};
+    if (draftData) {
+      try {
+        draftClassifications = JSON.parse(draftData);
+      } catch (e) {
+        console.error("Failed to parse draft classifications", e);
+      }
+    }
 
     if (savedClassifications.length > 0) {
       const classificationsObj = {};
       savedClassifications.forEach((item) => {
         classificationsObj[item.materialNumber] = item.classification;
       });
-      setClassifications(classificationsObj);
+      const mergedClassifications = {
+        ...classificationsObj,
+        ...draftClassifications,
+      };
+      setClassifications(mergedClassifications);
+      setSubmittedClassifications(classificationsObj);
+      setHasUnsavedChanges(Object.keys(draftClassifications).length > 0);
     } else {
       const mockClassifications =
         classifiedMaterialsDataOfProject[selectedProject];
@@ -71,29 +118,100 @@ const ClassifyMaterials = () => {
         mockClassifications.forEach((item) => {
           classificationsObj[item.materialNumber] = item.classification;
         });
-        setClassifications(classificationsObj);
+        const mergedClassifications = {
+          ...classificationsObj,
+          ...draftClassifications,
+        };
+        setClassifications(mergedClassifications);
+        setSubmittedClassifications(classificationsObj);
+        setHasUnsavedChanges(Object.keys(draftClassifications).length > 0);
       } else {
-        setClassifications({});
+        setClassifications(draftClassifications);
+        setSubmittedClassifications({});
+        setHasUnsavedChanges(Object.keys(draftClassifications).length > 0);
       }
     }
   }, [selectedProject]);
 
   const handleProjectSelect = (projectNum) => {
     setSelectedProject(projectNum);
-    setProjectNumber(projectNum);
+
+    if (projectNum) {
+      const project = latestProjectsData.find(
+        (p) => p.projectNumber === projectNum,
+      );
+      if (project && project.plant) {
+        setSelectedPlant(project.plant);
+        setParams({ project: projectNum, plant: project.plant });
+      } else {
+        setProject(projectNum);
+      }
+    } else {
+      setProject("");
+    }
+  };
+
+  const handlePlantSelect = (plantCode) => {
+    if (plantCode === selectedPlant) {
+      return;
+    }
+
+    setSelectedPlant(plantCode);
+    setSelectedProject("");
+    setHasUnsavedChanges(false);
+
+    if (plantCode) {
+      setParams({ plant: plantCode });
+    } else {
+      setPlant("");
+    }
   };
 
   const handleClassificationChange = (materialId, classification) => {
-    setClassifications((prev) => ({
-      ...prev,
-      [materialId]: classification,
-    }));
+    setClassifications((prev) => {
+      const newClassifications = {
+        ...prev,
+        [materialId]: classification,
+      };
+
+      const draftKey = `draftClassifications_${selectedProject}`;
+      const draftData = localStorage.getItem(draftKey);
+      let drafts = {};
+      if (draftData) {
+        try {
+          drafts = JSON.parse(draftData);
+        } catch (e) {
+          console.error("Failed to parse draft classifications", e);
+        }
+      }
+
+      const submittedValue = submittedClassifications[materialId];
+      if (classification !== submittedValue) {
+        drafts[materialId] = classification;
+        setHasUnsavedChanges(true);
+      } else {
+        delete drafts[materialId];
+        setHasUnsavedChanges(Object.keys(drafts).length > 0);
+      }
+
+      localStorage.setItem(draftKey, JSON.stringify(drafts));
+
+      return newClassifications;
+    });
   };
 
   const allClassified = useMemo(() => {
     if (materials.length === 0) return false;
     return materials.every((material) => classifications[material]);
   }, [materials, classifications]);
+
+  const hasAnyChanges = useMemo(() => {
+    return materials.some((material) => {
+      const current = classifications[material];
+      const submitted = submittedClassifications[material];
+      return current && current !== submitted;
+    });
+  }, [materials, classifications, submittedClassifications]);
 
   const classifiedCount = Object.keys(classifications).length;
   const pendingCount = materials.length - classifiedCount;
@@ -109,10 +227,26 @@ const ClassifyMaterials = () => {
               {t("modal.confirmTitle")}
             </IxModalHeader>
             <IxModalContent>
-              <IxTypography>{t("modal.confirmMessage")}</IxTypography>
-              <div style={{ marginTop: "16px" }}>
+              <IxTypography>
+                {t("modal.confirmMessage")} <strong>{selectedProject}</strong>?
+              </IxTypography>
+              <div
+                style={{
+                  marginTop: "16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                }}
+              >
                 <IxTypography format="label">
-                  {t("classifyMaterials.materials")}: {materials.length}
+                  {t("modal.project")}: <strong>{selectedProject}</strong>
+                </IxTypography>
+                <IxTypography format="label">
+                  {t("modal.plant")}:{" "}
+                  <strong>{currentProject?.plant || "-"}</strong>
+                </IxTypography>
+                <IxTypography format="label">
+                  {t("modal.materials")}: <strong>{materials.length}</strong>
                 </IxTypography>
               </div>
             </IxModalContent>
@@ -138,9 +272,7 @@ const ClassifyMaterials = () => {
         content: <ConfirmModalContent />,
       });
 
-      // Listen for modal close event
       instance.onClose.once((detail) => {
-        console.log("Modal closed with:", detail);
         if (detail === "confirmed") {
           handleConfirmSubmit();
         }
@@ -152,12 +284,23 @@ const ClassifyMaterials = () => {
     const success = saveProjectClassifications(
       selectedProject,
       classifications,
-      "Current User"
+      "Current User",
     );
 
     if (success) {
+      const submittedProject = selectedProject;
+      const submittedPlant = currentProject?.plant;
+
       const SuccessModalContent = () => {
         const modalRef = useRef(null);
+
+        const handleViewClassifications = () => {
+          modalRef.current?.close();
+          navigate({
+            pathname: "/viewclassifications",
+            search: `?project=${submittedProject}&plant=${submittedPlant}`,
+          });
+        };
 
         return (
           <Modal ref={modalRef}>
@@ -165,18 +308,35 @@ const ClassifyMaterials = () => {
               {t("modal.successTitle")}
             </IxModalHeader>
             <IxModalContent>
-              <div style={{ textAlign: "center", padding: "16px" }}>
-                <IxIcon
-                  name="check-circle"
-                  size="64"
-                  style={{ color: "var(--theme-success)" }}
-                />
-                <IxTypography style={{ marginTop: "16px" }}>
+              <div style={{ textAlign: "start", padding: "16px" }}>
+                <IxTypography style={{ marginTop: "8px" }}>
                   {t("modal.successMessage")}
                 </IxTypography>
+                <div
+                  style={{
+                    marginTop: "16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  <IxTypography format="label">
+                    {t("modal.project")}: <strong>{submittedProject}</strong>
+                  </IxTypography>
+                  <IxTypography format="label">
+                    {t("modal.plant")}: <strong>{submittedPlant || "-"}</strong>
+                  </IxTypography>
+                  <IxTypography format="label">
+                    {t("modal.materials")}: <strong>{materials.length}</strong>
+                  </IxTypography>
+                </div>
               </div>
             </IxModalContent>
             <IxModalFooter>
+              <IxButton variant="secondary" onClick={handleViewClassifications}>
+                {t("modal.view")}
+              </IxButton>
               <IxButton
                 variant="primary"
                 onClick={() => modalRef.current?.close()}
@@ -192,36 +352,110 @@ const ClassifyMaterials = () => {
         content: <SuccessModalContent />,
       });
 
+      const draftKey = `draftClassifications_${selectedProject}`;
+      localStorage.removeItem(draftKey);
+
       setClassifications({});
+      setSubmittedClassifications({});
+      setHasUnsavedChanges(false);
       setSelectedProject("");
-      setProjectNumber("");
+      setSelectedPlant("");
+      setParams({});
     } else {
       console.error("❌ Failed to save classifications");
     }
   };
 
   return (
-    <div style={{ padding: "24px", height: "100%", overflow: "auto" }}>
+    <div style={{
+      padding: "24px",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden"
+    }}>
       <IxTypography format="h2" style={{ marginBottom: "24px" }}>
         {t("classifyMaterials.title")}
       </IxTypography>
 
       <div style={{ marginBottom: "24px" }}>
-        <IxTypography
-          format="label"
-          style={{ marginBottom: "8px", display: "block" }}
+        <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+          <div>
+            <IxTypography
+              format="label"
+              style={{ marginBottom: "8px", display: "block" }}
+            >
+              {t("classifyMaterials.selectProject")}
+            </IxTypography>
+            <ProjectSelectorWithLatest
+              selectedProject={selectedProject}
+              selectedPlant={selectedPlant}
+              onProjectSelect={handleProjectSelect}
+            />
+          </div>
+          <div>
+            <IxTypography
+              format="label"
+              style={{ marginBottom: "8px", display: "block" }}
+            >
+              {t("classifyMaterials.selectPlant")}
+            </IxTypography>
+            <PlantSelector
+              selectedPlant={selectedPlant}
+              onPlantSelect={handlePlantSelect}
+            />
+          </div>
+        </div>
+        <div
+          style={{
+            marginTop: "4px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+          }}
         >
-          {t("classifyMaterials.selectProject")}
-        </IxTypography>
-        <ProjectSelectorWithLatest
-          selectedProject={selectedProject}
-          onProjectSelect={handleProjectSelect}
-        />
+          {isPlantMismatch && (
+            <IxTypography
+              format="caption"
+              style={{
+                color: "var(--theme-alarm)",
+                fontSize: "12px",
+                fontWeight: "bold",
+                marginTop: "8px",
+              }}
+            >
+              ⚠️ {t("common.warning")}: {t("common.plantMismatchPart1")} {currentProject.plant} {t("common.plantMismatchPart2")} {selectedPlant} {t("common.plantMismatchPart3")}
+            </IxTypography>
+          )}
+          {selectedPlant && (
+            <IxTypography
+              format="caption"
+              style={{
+                color: "var(--theme-color-soft-text)",
+                fontSize: "12px",
+              }}
+            >
+              {selectedPlant} {t("common.showingProjectsPart2")} {filteredProjectsCount} {t("common.showingProjectsPart3")}
+            </IxTypography>
+          )}
+        </div>
       </div>
 
       {currentProject && (
-        <div style={{ marginBottom: "16px" }}>
-          <IxTypography format="h4">{currentProject.projectName}</IxTypography>
+        <div
+          style={{
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <IxTypography format="h2">{currentProject.projectName}</IxTypography>
+          {hasUnsavedChanges && (
+            <IxPill variant="warning" outline>
+              {t("classifyMaterials.unsavedChanges")}
+            </IxPill>
+          )}
         </div>
       )}
 
@@ -229,7 +463,7 @@ const ClassifyMaterials = () => {
         <div
           style={{
             marginBottom: "24px",
-            padding: "12px 16px",
+            padding: "8px 0px",
             background: "var(--theme-color-2)",
             borderRadius: "4px",
             display: "flex",
@@ -304,17 +538,23 @@ const ClassifyMaterials = () => {
               border: "1px solid var(--theme-color-soft-bdr)",
               borderRadius: "4px",
               overflow: "hidden",
-              marginBottom: "24px",
+              marginBottom: "16px",
+              display: "flex",
+              flexDirection: "column",
+              flex: "1 1 auto",
+              minHeight: 0
             }}
           >
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "60px 1fr 2fr",
+                gap: "16px",
                 background: "var(--theme-color-2)",
                 padding: "12px 16px",
                 borderBottom: "1px solid var(--theme-color-soft-bdr)",
                 fontWeight: "bold",
+                flexShrink: 0
               }}
             >
               <div>#</div>
@@ -322,7 +562,7 @@ const ClassifyMaterials = () => {
               <div>{t("classifyMaterials.classification")}</div>
             </div>
 
-            <div style={{ maxHeight: "calc(100vh - 450px)", overflow: "auto" }}>
+            <div style={{ overflow: "auto", flex: "1 1 auto" }}>
               {materials.map((material, index) => {
                 const currentClass = classifications[material];
                 const isClassified = !!currentClass;
@@ -333,6 +573,7 @@ const ClassifyMaterials = () => {
                     style={{
                       display: "grid",
                       gridTemplateColumns: "60px 1fr 2fr",
+                      gap: "16px",
                       padding: "12px 16px",
                       borderBottom: "1px solid var(--theme-color-soft-bdr)",
                       background: isClassified
@@ -359,6 +600,9 @@ const ClassifyMaterials = () => {
                     >
                       {classes.map((cls) => {
                         const isSelected = currentClass === cls;
+                        const isSubmitted =
+                          submittedClassifications[material] === cls;
+                        const hasChanged = isSubmitted && currentClass !== cls;
                         const color = classColors[cls];
 
                         return (
@@ -371,9 +615,19 @@ const ClassifyMaterials = () => {
                             }
                             style={{
                               minWidth: "90px",
-                              background: isSelected ? color.bg : "transparent",
-                              borderColor: color.bg,
-                              color: isSelected ? color.text : color.bg,
+                              background: isSelected
+                                ? color.bg
+                                : hasChanged
+                                  ? `${color.bg}40`
+                                  : "transparent",
+                              borderColor: hasChanged
+                                ? `${color.bg}80`
+                                : color.bg,
+                              color: isSelected
+                                ? color.text
+                                : hasChanged
+                                  ? `${color.bg}80`
+                                  : color.bg,
                               fontWeight: isSelected ? "bold" : "normal",
                               transform: isSelected
                                 ? "scale(1.05)"
@@ -383,6 +637,7 @@ const ClassifyMaterials = () => {
                                 ? `0 0 8px ${color.bg}50`
                                 : "none",
                               borderRadius: "8px",
+                              opacity: hasChanged ? 0.6 : 1,
                             }}
                           >
                             {cls}
@@ -397,16 +652,68 @@ const ClassifyMaterials = () => {
           </div>
 
           <div
-            style={{ display: "flex", justifyContent: "flex-end", gap: "16px" }}
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "16px",
+              alignItems: "center",
+              flexShrink: 0,
+              paddingTop: "8px"
+            }}
           >
             {!allClassified && (
               <IxTypography color="alarm" style={{ alignSelf: "center" }}>
                 {t("classifyMaterials.classifyAll")}
               </IxTypography>
             )}
+            {hasUnsavedChanges && (
+              <IxButton
+                variant="secondary"
+                outline
+                onClick={() => {
+                  // Clear draft from localStorage
+                  const draftKey = `draftClassifications_${selectedProject}`;
+                  localStorage.removeItem(draftKey);
+
+                  // Reload classifications from submitted data only
+                  const savedClassifications =
+                    getProjectClassifications(selectedProject);
+                  if (savedClassifications.length > 0) {
+                    const classificationsObj = {};
+                    savedClassifications.forEach((item) => {
+                      classificationsObj[item.materialNumber] =
+                        item.classification;
+                    });
+                    setClassifications(classificationsObj);
+                  } else {
+                    const mockClassifications =
+                      classifiedMaterialsDataOfProject[selectedProject];
+                    if (mockClassifications && mockClassifications.length > 0) {
+                      const classificationsObj = {};
+                      mockClassifications.forEach((item) => {
+                        classificationsObj[item.materialNumber] =
+                          item.classification;
+                      });
+                      setClassifications(classificationsObj);
+                    } else {
+                      setClassifications({});
+                    }
+                  }
+
+                  setHasUnsavedChanges(false);
+                }}
+                style={{
+                  borderRadius: "80px",
+                }}
+              >
+                <span style={{ marginLeft: "4px" }}>
+                  {t("classifyMaterials.discardChanges")}
+                </span>
+              </IxButton>
+            )}
             <IxButton
               variant="primary"
-              disabled={!allClassified}
+              disabled={!allClassified || !hasAnyChanges}
               onClick={handleConfirm}
               style={{
                 borderRadius: "80px",

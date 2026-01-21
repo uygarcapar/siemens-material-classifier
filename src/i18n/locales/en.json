@@ -2,6 +2,17 @@
   "app": {
     "title": "Material Classifier"
   },
+  "common": {
+    "selectPlant": "Select Plant",
+    "plant": "Plant",
+    "warning": "Warning",
+    "plantMismatchPart1": "Selected project belongs to plant",
+    "plantMismatchPart2": "but plant filter is set to",
+    "plantMismatchPart3": "",
+    "showingProjectsPart1": "",
+    "showingProjectsPart2": "Showing",
+    "showingProjectsPart3": "projects"
+  },
   "menu": {
     "classifyMaterials": "Classify Materials",
     "viewClassifications": "View Classifications",
@@ -10,6 +21,7 @@
   "classifyMaterials": {
     "title": "Classify Materials",
     "selectProject": "Select Project",
+    "selectPlant": "Select Plant",
     "searchProject": "Search by project number...",
     "latestProjects": "Latest Projects",
     "materials": "Materials",
@@ -20,14 +32,17 @@
     "noMaterials": "No materials found for this project",
     "selectProjectFirst": "Please select a project first",
     "allClassified": "All materials classified",
-    "pendingClassification": "pending classification",
+    "pendingClassification": "pending",
     "classifyAll": "Please classify all materials before confirming",
     "recentsHeader": "── Recents ──",
-    "allProjectsHeader": "── All Projects ──"
+    "allProjectsHeader": "── All Projects ──",
+    "unsavedChanges": "Unsaved changes",
+    "discardChanges": "Discard changes"
   },
   "viewClassifications": {
     "title": "View Classifications",
     "selectProject": "Select Project",
+    "selectPlant": "Select Plant",
     "searchProject": "Search by project number...",
     "materialNumber": "Material Number",
     "classification": "Classification",
@@ -43,12 +58,16 @@
   },
   "modal": {
     "confirmTitle": "Confirm Classification",
-    "confirmMessage": "Are you sure you want to confirm the classification of all materials?",
+    "confirmMessage": "Are you sure you want to confirm the classification of all materials for project",
+    "project": "Project",
+    "plant": "Plant",
+    "materials": "Materials",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "successTitle": "Success",
     "successMessage": "All materials have been classified successfully!",
-    "ok": "OK"
+    "ok": "OK",
+    "view": "View"
   },
   "classes": {
     "classA": "Class A",
