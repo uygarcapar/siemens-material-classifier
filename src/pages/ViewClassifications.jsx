@@ -24,7 +24,6 @@ const ViewClassifications = () => {
   const [selectedProject, setSelectedProject] = useState(project || "");
   const [selectedPlant, setSelectedPlant] = useState(plant || "");
 
-  // Load saved grid state from localStorage
   const loadGridState = useCallback(() => {
     const savedState = localStorage.getItem("agGridState");
     if (savedState) {
@@ -38,7 +37,6 @@ const ViewClassifications = () => {
     return null;
   }, []);
 
-  // Save grid state to localStorage
   const saveGridState = useCallback(() => {
     if (!gridRef.current) return;
 
@@ -369,7 +367,9 @@ const ViewClassifications = () => {
                 marginTop: "8px",
               }}
             >
-              ⚠️ {t("common.warning")}: {t("common.plantMismatchPart1")} {currentProject.plant} {t("common.plantMismatchPart2")} {selectedPlant} {t("common.plantMismatchPart3")}
+              ⚠️ {t("common.warning")}: {t("common.plantMismatchPart1")}{" "}
+              {currentProject.plant} {t("common.plantMismatchPart2")}{" "}
+              {selectedPlant} {t("common.plantMismatchPart3")}
             </IxTypography>
           )}
           {selectedPlant && (
@@ -380,7 +380,8 @@ const ViewClassifications = () => {
                 fontSize: "12px",
               }}
             >
-              {selectedPlant} {t("common.showingProjectsPart2")} {filteredProjectsCount} {t("common.showingProjectsPart3")}
+              {selectedPlant} {t("common.showingProjectsPart2")}{" "}
+              {filteredProjectsCount} {t("common.showingProjectsPart3")}
             </IxTypography>
           )}
         </div>
